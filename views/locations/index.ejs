@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <a href="/">Foods</a>
+            <a href="/locations">Delivery Locations</a>
+            <a href="/orders">Orders</a>
+        </nav>
+        <h1><%= title %></h1>
+        <a class="btn btn-add" href="/locations/add">+ Add Delivery Location</a>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>ID</th>
+                    <th>Food</th>
+                    <th>Location Name</th>
+                    <th>Address</th>
+                    <th>Delivery Fee</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (locations.length === 0) { %>
+                    <tr>
+                        <td colspan="7" class="empty">No delivery locations yet. Add one above.</td>
+                    </tr>
+                <% } %>
+                <% locations.forEach((loc, index) => { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= loc.id %></td>
+                        <td><%= loc.food_name %></td>
+                        <td><%= loc.location_name %></td>
+                        <td><%= loc.address %></td>
+                        <td>$<%= Number(loc.delivery_fee).toFixed(2) %></td>
+                        <td class="actions">
+                            <a class="btn btn-edit" href="/locations/edit/<%= loc.id %>">Edit</a>
+                            <form action="/locations/delete/<%= loc.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this delivery location?');">
+                                <button type="submit" class="btn btn-delete">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

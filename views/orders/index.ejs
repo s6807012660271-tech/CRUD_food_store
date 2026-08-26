@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <a href="/">Foods</a>
+            <a href="/locations">Delivery Locations</a>
+            <a href="/orders">Orders</a>
+        </nav>
+        <h1><%= title %></h1>
+        <a class="btn btn-add" href="/orders/add">+ Add Order</a>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>ID</th>
+                    <th>Customer</th>
+                    <th>Food</th>
+                    <th>Location</th>
+                    <th>Qty</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (orders.length === 0) { %>
+                    <tr>
+                        <td colspan="8" class="empty">No orders yet. Add one above.</td>
+                    </tr>
+                <% } %>
+                <% orders.forEach((order, index) => { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= order.id %></td>
+                        <td><%= order.customer_name %></td>
+                        <td><%= order.food_name %></td>
+                        <td><%= order.location_name %></td>
+                        <td><%= order.quantity %></td>
+                        <td>
+                            <span class="badge badge-<%= order.status.toLowerCase() %>"><%= order.status %></span>
+                        </td>
+                        <td class="actions">
+                            <a class="btn btn-edit" href="/orders/edit/<%= order.id %>">Edit</a>
+                            <form action="/orders/delete/<%= order.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this order?');">
+                                <button type="submit" class="btn btn-delete">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

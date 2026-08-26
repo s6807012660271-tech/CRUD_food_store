@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <a href="/">Foods</a>
+            <a href="/locations">Delivery Locations</a>
+            <a href="/orders">Orders</a>
+        </nav>
+        <h1><%= title %></h1>
+        <form action="/add" method="POST" class="food-form">
+            <label for="food_name">Food Name</label>
+            <input type="text" id="food_name" name="food_name" required>
+
+            <label for="food_type">Food Type</label>
+            <input type="text" id="food_type" name="food_type" placeholder="e.g. Main Course, Dessert, Drink" required>
+
+            <label for="price">Price</label>
+            <input type="number" id="price" name="price" step="0.01" min="0" required>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-add">Add Food</button>
+                <a class="btn btn-cancel" href="/">Cancel</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="nav">
+            <a href="/">Foods</a>
+            <a href="/locations">Delivery Locations</a>
+            <a href="/orders">Orders</a>
+        </nav>
+        <h1><%= title %></h1>
+        <a class="btn btn-add" href="/add">+ Add Food</a>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>ID</th>
+                    <th>Food Name</th>
+                    <th>Food Type</th>
+                    <th>Price</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% if (foods.length === 0) { %>
+                    <tr>
+                        <td colspan="6" class="empty">No food items yet. Add one above.</td>
+                    </tr>
+                <% } %>
+                <% foods.forEach((food, index) => { %>
+                    <tr>
+                        <td><%= index + 1 %></td>
+                        <td><%= food.id %></td>
+                        <td><%= food.food_name %></td>
+                        <td><%= food.food_type %></td>
+                        <td>$<%= Number(food.price).toFixed(2) %></td>
+                        <td class="actions">
+                            <a class="btn btn-edit" href="/edit/<%= food.id %>">Edit</a>
+                            <form action="/delete/<%= food.id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this food item?');">
+                                <button type="submit" class="btn btn-delete">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
