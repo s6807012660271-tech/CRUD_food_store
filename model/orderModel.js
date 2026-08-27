@@ -1,53 +1,67 @@
-const db = require('../config/db');
+const supabase = require('../config/db');
 
 const OrderModel = {
-    getAll: (callback) => {
-        const sql = `
-            SELECT orders.*, foods.food_name, foods.price,
-                   delivery_locations.location_name, delivery_locations.address
-            FROM orders
-            JOIN foods ON orders.food_id = foods.id
-            JOIN delivery_locations ON orders.location_id = delivery_locations.id
-            ORDER BY orders.id ASC
-        `;
-        db.all(sql, [], callback);
+    getAll: async () => {
+        const { data, error } = await supabase
+            .from('orders')
+            .select(`
+                *,
+                foods (food_name, price),
+                delivery_locations (location_name, address)
+            `)
+            .order('id', { ascending: true });
+        if (error) throw error;
+        return data;
     },
 
-    getById: (id, callback) => {
-        db.get('SELECT * FROM orders WHERE id = ?', [id], callback);
+    getById: async (id) => {
+        const { data, error } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('id', id)
+            .single();
+        if (error) throw error;
+        return data;
     },
 
     // Only delivery locations that serve the given food (matches the FK relationship)
-    getLocationsForFood: (foodId, callback) => {
-        db.all('SELECT * FROM delivery_locations WHERE food_id = ?', [foodId], callback);
+    getLocationsForFood: async (foodId) => {
+        const { data, error } = await supabase
+            .from('delivery_locations')
+            .select('*')
+            .eq('food_id', foodId);
+        if (error) throw error;
+        return data;
     },
 
-    create: (order, callback) => {
+    create: async (order) => {
         const { food_id, location_id, customer_name, quantity, status } = order;
-        db.run(
-            'INSERT INTO orders (food_id, location_id, customer_name, quantity, status) VALUES (?, ?, ?, ?, ?)',
-            [food_id, location_id, customer_name, quantity, status || 'Pending'],
-            function (err) {
-                callback(err, this.lastID);
-            }
-        );
+        const { data, error } = await supabase
+            .from('orders')
+            .insert([{ food_id, location_id, customer_name, quantity, status: status || 'Pending' }])
+            .select();
+        if (error) throw error;
+        return data[0];
     },
 
-    update: (id, order, callback) => {
+    update: async (id, order) => {
         const { food_id, location_id, customer_name, quantity, status } = order;
-        db.run(
-            'UPDATE orders SET food_id = ?, location_id = ?, customer_name = ?, quantity = ?, status = ? WHERE id = ?',
-            [food_id, location_id, customer_name, quantity, status, id],
-            function (err) {
-                callback(err, this.changes);
-            }
-        );
+        const { data, error } = await supabase
+            .from('orders')
+            .update({ food_id, location_id, customer_name, quantity, status })
+            .eq('id', id)
+            .select();
+        if (error) throw error;
+        return data[0];
     },
 
-    delete: (id, callback) => {
-        db.run('DELETE FROM orders WHERE id = ?', [id], function (err) {
-            callback(err, this.changes);
-        });
+    delete: async (id) => {
+        const { error } = await supabase
+            .from('orders')
+            .delete()
+            .eq('id', id);
+        if (error) throw error;
+        return true;
     }
 };
 

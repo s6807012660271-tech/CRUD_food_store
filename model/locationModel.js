@@ -1,46 +1,56 @@
-const db = require('../config/db');
+const supabase = require('../config/db');
 
 const LocationModel = {
-    getAll: (callback) => {
-        const sql = `
-            SELECT delivery_locations.*, foods.food_name
-            FROM delivery_locations
-            JOIN foods ON delivery_locations.food_id = foods.id
-            ORDER BY delivery_locations.id ASC
-        `;
-        db.all(sql, [], callback);
+    getAll: async () => {
+        const { data, error } = await supabase
+            .from('delivery_locations')
+            .select(`
+                *,
+                foods (food_name)
+            `)
+            .order('id', { ascending: true });
+        if (error) throw error;
+        return data;
     },
 
-    getById: (id, callback) => {
-        db.get('SELECT * FROM delivery_locations WHERE id = ?', [id], callback);
+    getById: async (id) => {
+        const { data, error } = await supabase
+            .from('delivery_locations')
+            .select('*')
+            .eq('id', id)
+            .single();
+        if (error) throw error;
+        return data;
     },
 
-    create: (location, callback) => {
+    create: async (location) => {
         const { food_id, location_name, address, delivery_fee } = location;
-        db.run(
-            'INSERT INTO delivery_locations (food_id, location_name, address, delivery_fee) VALUES (?, ?, ?, ?)',
-            [food_id, location_name, address, delivery_fee],
-            function (err) {
-                callback(err, this.lastID);
-            }
-        );
+        const { data, error } = await supabase
+            .from('delivery_locations')
+            .insert([{ food_id, location_name, address, delivery_fee }])
+            .select();
+        if (error) throw error;
+        return data[0];
     },
 
-    update: (id, location, callback) => {
+    update: async (id, location) => {
         const { food_id, location_name, address, delivery_fee } = location;
-        db.run(
-            'UPDATE delivery_locations SET food_id = ?, location_name = ?, address = ?, delivery_fee = ? WHERE id = ?',
-            [food_id, location_name, address, delivery_fee, id],
-            function (err) {
-                callback(err, this.changes);
-            }
-        );
+        const { data, error } = await supabase
+            .from('delivery_locations')
+            .update({ food_id, location_name, address, delivery_fee })
+            .eq('id', id)
+            .select();
+        if (error) throw error;
+        return data[0];
     },
 
-    delete: (id, callback) => {
-        db.run('DELETE FROM delivery_locations WHERE id = ?', [id], function (err) {
-            callback(err, this.changes);
-        });
+    delete: async (id) => {
+        const { error } = await supabase
+            .from('delivery_locations')
+            .delete()
+            .eq('id', id);
+        if (error) throw error;
+        return true;
     }
 };
 

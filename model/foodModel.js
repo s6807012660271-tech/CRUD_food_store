@@ -1,40 +1,53 @@
-const db = require('../config/db');
+const supabase = require('../config/db');
 
 const FoodModel = {
-    getAll: (callback) => {
-        db.all('SELECT * FROM foods ORDER BY id ASC', [], callback);
+    getAll: async () => {
+        const { data, error } = await supabase
+            .from('foods')
+            .select('*')
+            .order('id', { ascending: true });
+        if (error) throw error;
+        return data;
     },
 
-    getById: (id, callback) => {
-        db.get('SELECT * FROM foods WHERE id = ?', [id], callback);
+    getById: async (id) => {
+        const { data, error } = await supabase
+            .from('foods')
+            .select('*')
+            .eq('id', id)
+            .single();
+        if (error) throw error;
+        return data;
     },
 
-    create: (food, callback) => {
+    create: async (food) => {
         const { food_name, food_type, price } = food;
-        db.run(
-            'INSERT INTO foods (food_name, food_type, price) VALUES (?, ?, ?)',
-            [food_name, food_type, price],
-            function (err) {
-                callback(err, this.lastID);
-            }
-        );
+        const { data, error } = await supabase
+            .from('foods')
+            .insert([{ food_name, food_type, price }])
+            .select();
+        if (error) throw error;
+        return data[0];
     },
 
-    update: (id, food, callback) => {
+    update: async (id, food) => {
         const { food_name, food_type, price } = food;
-        db.run(
-            'UPDATE foods SET food_name = ?, food_type = ?, price = ? WHERE id = ?',
-            [food_name, food_type, price, id],
-            function (err) {
-                callback(err, this.changes);
-            }
-        );
+        const { data, error } = await supabase
+            .from('foods')
+            .update({ food_name, food_type, price })
+            .eq('id', id)
+            .select();
+        if (error) throw error;
+        return data[0];
     },
 
-    delete: (id, callback) => {
-        db.run('DELETE FROM foods WHERE id = ?', [id], function (err) {
-            callback(err, this.changes);
-        });
+    delete: async (id) => {
+        const { error } = await supabase
+            .from('foods')
+            .delete()
+            .eq('id', id);
+        if (error) throw error;
+        return true;
     }
 };
 
